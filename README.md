@@ -1,6 +1,6 @@
 # Docker Traefik Stacks
 
-A curated collection of complete, Traefik-ready Docker Compose stacks — each one a deployable unit with the app, database, storage, networking, and routing already wired together.
+A curated collection of complete Docker Compose stacks for Traefik v3 — each one a deployable unit with the app, database, storage, networking, and routing already wired together.
 
 Deploy Traefik once, then bring stacks online with `docker compose up -d`. Add, update, or remove stacks independently without touching the others.
 
