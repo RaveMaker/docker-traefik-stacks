@@ -1,6 +1,6 @@
 services:
   cms:
-    image: cms
+    image: ${podName}-cms
     build:
       context: build-cms
     privileged: true
@@ -31,7 +31,7 @@ services:
       - "traefik.http.services.${podName}-admin.loadbalancer.server.port=8889"
 
   rws:
-    image: cms:latest
+    image: ${podName}-cms
     command: rws
     depends_on:
       - cms
@@ -53,6 +53,8 @@ services:
   cms_db:
     image: postgres
     restart: always
+    labels:
+      - "traefik.enable=false"
     networks:
       - backend
     volumes:

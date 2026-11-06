@@ -20,6 +20,8 @@ services:
     build: .
     image: ${podName}-php
     restart: always
+    labels:
+      - "traefik.enable=false"
     networks:
       - backend
     volumes:
@@ -28,6 +30,8 @@ services:
   mariadb:
     image: mariadb
     restart: always
+    labels:
+      - "traefik.enable=false"
     networks:
       - backend
     environment:
@@ -43,6 +47,8 @@ services:
     depends_on:
       - mariadb
     restart: always
+    labels:
+      - "traefik.enable=false"
     networks:
       - backend
     environment:

@@ -1,7 +1,7 @@
 services:
   python:
     build: .
-    image: ${podName}/python
+    image: ${podName}-python
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
