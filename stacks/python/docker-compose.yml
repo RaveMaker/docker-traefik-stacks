@@ -1,0 +1,18 @@
+services:
+  python:
+    build: .
+    image: ${podName}/python
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${podName}.rule=Host(`${hostRule}`)"
+      - "traefik.http.routers.${podName}.entrypoints=https"
+      - "traefik.http.routers.${podName}.tls=true"
+      - "traefik.http.services.${podName}.loadbalancer.server.port=80"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: proxy

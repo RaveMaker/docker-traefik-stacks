@@ -7,13 +7,7 @@ Nginx default.conf also includes support for personal home folder (same as userd
 ## Setup:
 1. clone the repo
 2. create `.env` file from `.env.example`
-3. copy one of the docker-compose (dev/traefik) templates to `docker-compose.yml`
-
-- to create a docker-compose.prod.yml file for docker swarm run:
-
-```
-docker-compose config > docker-compose.prod.yml
-``` 
+3. run `docker compose up -d`
 
 - to use the 'userdir_mod' behaviour:
 1. mount your users home/group folder to ./home
@@ -23,20 +17,13 @@ docker-compose config > docker-compose.prod.yml
 #- ./home:/home:ro
 ```
 
-## Network settings:
-Container is connected to to a unique network named stack-name_frontend such as:
+## Network settings
 
-- docker-nginx_frontend
-
-after running docker-compose up you need to connect your reverse proxy to your new frontend network:
- you can do that manually using:
+This stack joins an external Docker network named `proxy` (shared with Traefik). Create it once before bringing the stack up:
 
 ```
-docker network connect docker-nginx_frontend PROXY_CONTAINER_NAME
+docker network create proxy
 ```
-
-if you are using my Traefik setup there is a 'connect.sh' script included
-that will connect all your frontend networks to your Traefik container.
 
 Author: [RaveMaker][RaveMaker].
 

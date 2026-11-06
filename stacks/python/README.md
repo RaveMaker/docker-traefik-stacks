@@ -4,20 +4,14 @@ Dockerfile for Python3, includes Traefik support.
 docker-compose file includes:
  - Python3
  - Docker Swarm support
- - Traefik v2 support
+ - Traefik v3 support
 
 ## Setup:
 1. clone the repo
 2. create `.env` file from `.env.example`
 3. place your python app in 'app' folder
 4. app should have a 'requirements.txt' file at 'app/requirements.txt'
-5. copy one of the docker-compose (dev/traefik) templates to `docker-compose.yml`
-
-- to create a docker-compose.prod.yml file for docker swarm run:
-
-```
-docker-compose config > docker-compose.prod.yml
-``` 
+5. run `docker compose up -d`
 
 ## WSGI Server
 In prod we will use a server instead of running the app with python. 
@@ -35,19 +29,13 @@ services:
     entrypoint: ["/app/main.py"]
 ```
 
-## Network settings:
-Container is connected to to a unique network named stack-name_frontend such as:
+## Network settings
 
-- docker-python_frontend
+This stack joins an external Docker network named `proxy` (shared with Traefik). Create it once before bringing the stack up:
 
-after running docker-compose up you need to connect your reverse proxy to your new frontend network:
- you can do that manually using:
-
- ```
- docker network connect docker-python_frontend PROXY_CONTAINER_NAME
- ```
-
-if you are using my Traefik setup there is a `connect.sh` script included that will connect all your frontend networks to your Traefik container.
+```
+docker network create proxy
+```
 
 Author: [RaveMaker][RaveMaker].
 

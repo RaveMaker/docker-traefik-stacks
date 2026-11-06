@@ -5,7 +5,7 @@ docker-compose file includes:
  - Jekyll New - Creates a new Jekyll website in `jekyll-new` folder
  - Jekyll Serve - `jekyll serve`
  - Jekyll Prod - `jekyll build` and serve with nginx
- - Traefik v2 support
+ - Traefik v3 support
 
 ## Setup
 1. clone the repo
@@ -27,33 +27,20 @@ when a change is made to any of the files.
 ## Production
 1. create folder `jekyll` and copy your Jekyll project there.
 2. change ownership of jekyll folder `chown 1000:1000 jekyll -R`
-3. copy one of the docker-compose (dev/traefik) templates to `docker-compose.yml`
-
-- to create a docker-compose.prod.yml file for docker swarm run:
-
-```
-docker-compose config > docker-compose.prod.yml
-``` 
+3. run `docker compose up -d`
 
 Jekyll will build the static site from the `jekyll` folder and docker
 will copy it to a new nginx-alpine container without the build tools.
 That way we get a clean nginx production container that
 contains the static website.
 
-## Network settings:
-Container is connected to to a unique network named stack-name_frontend such as:
+## Network settings
 
-- docker-jekyll_frontend
+This stack joins an external Docker network named `proxy` (shared with Traefik). Create it once before bringing the stack up:
 
-after running docker-compose up you need to connect your reverse proxy to your new frontend network,
- you can do that manually using:
- 
 ```
- docker network connect docker-jekyll_dev_frontend PROXY_CONTAINER_NAME
- docker network connect docker-jekyll_prod_frontend PROXY_CONTAINER_NAME
- ```
-
-if you are using my Traefik setup there is a `connect.sh` script included that will connect all your frontend networks to your Traefik container.
+docker network create proxy
+```
 
 Author: [RaveMaker][RaveMaker].
 

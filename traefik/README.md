@@ -1,57 +1,56 @@
 # docker-traefik
 
-Traefik v2 setup with customized security settings.
+Traefik v3 reverse proxy for the stacks in this repository.
 
-- All traffic from port 80 is routed to port 443
-- Dashboard is SSL secured by default and not accessible in port 8080
-- Supports Docker Swarm mode
+Containers are discovered automatically over a shared external Docker network named `proxy`. HTTP on port 80 is redirected to HTTPS on port 443. TLS certificates and cipher options are loaded from `conf/traefik-tls.toml`.
+
+## Features
+
+- Traefik v3 (`traefik:3`)
+- Automatic HTTP → HTTPS redirect
+- Docker provider with `exposedByDefault = false`
+- Shared external `proxy` network
+- File-based TLS certificates and options
+- Config reload when TLS settings change
 
 ## Setup
-1. clone the repo
-2. create `.env` file from `.env.example`
-* The default user and password for the dashboard is admin/admin.
-make sure to generate a new password using 'htpasswd' and
-replace it in your '.env' file
-3. create your `conf/traefik.toml` file from `conf/conf.d/traefik.toml.example`
-4. create your `conf/certificates.toml` file from `conf/conf.d/certificates.toml.example`
-5. create your `conf/tls.toml` file from `conf/tls.toml.example`
-6. place certificate and private key files in `certs` folder 
-7. create your `docker-compose.yml` from `docker-compose.dev.yml`
 
-- to create a `docker-compose.prod.yml` file for docker swarm run:
+1. Create the shared proxy network (once):
 
 ```
-docker-compose config > docker-compose.prod.yml
-``` 
+docker network create proxy
+```
 
-## Network settings:
-Network name is 'proxy'
+Or run `./connect.sh`, which does the same thing.
 
-When you create a stack make sure it's divided into three networks: proxy, backend and frontend.
-the idea behind splitting the stack into three networks
-is to block the access of the reverse proxy to the backend containers.
+2. Place your certificate and private key files in the `certs/` folder.  
+   Defaults expected by `conf/traefik-tls.toml`:
 
-with the Traefik container you will only create the 'proxy' network,
-other networks will be created with each stack according to that stack name
-to avoid access between frontend/backend containers of different stacks.
+- `certs/traefik.crt` / `certs/traefik.key`
+- `certs/star.traefik.crt` / `certs/star.traefik.key`
 
-- proxy
-- stack1_frontend
-- stack1_backend
-- stack2_frontend
-- stack2_backend
+3. Review `conf/traefik.toml` and `conf/traefik-tls.toml` if you need different entrypoints, providers, or certificates.
 
-and so on...
+4. Start Traefik:
 
-- request --> traefik --> frontend1 --> backend1
-- request --> traefik --> frontend2 --> backend2
+```
+docker compose up -d
+```
 
-there is a 'connect.sh' script included that will connect your Traefik container to all of your
-frontend networks. you only need to run it after creating a new stack.
-the connection is persistent and will remain between reboots and up/down commands.
-you can run the script multiple times, it will output an error if the connection already exist. 
+## Network settings
+
+This Traefik stack uses an external Docker network named `proxy`. Create it before bringing Traefik (or any application stack) up:
+
+```
+docker network create proxy
+```
+
+Application stacks attach their public-facing services to the same `proxy` network so Traefik can route to them. Private services (databases, etc.) stay on stack-local backend networks.
+
+## Older versions
+
+Legacy setups are kept for reference under `traefik-v1/` and `traefik-v2/`. Prefer this v3 configuration for new deployments.
 
 Author: [RaveMaker][RaveMaker].
 
 [RaveMaker]: http://ravemaker.net
- 

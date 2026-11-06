@@ -1,0 +1,30 @@
+services:
+  reverse-proxy:
+    image: traefik:3
+    restart: unless-stopped
+    networks:
+      - proxy
+#      proxy:
+#        ipv4_address: 172.18.0.250
+    command:
+      - "--configFile=/traefik.toml"
+    ports:
+      - "80:80"      # The HTTP port
+      - "443:443"    # The HTTPs port
+#      - "8080:8080"  # Traefik Admin
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.${podName}.rule=Host(`${hostRule}`)"
+#      - "traefik.http.routers.${podName}.entrypoints=https"
+#      - "traefik.http.routers.${podName}.tls=true"
+#      - "traefik.http.services.${podName}.loadbalancer.server.port=8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # So that Traefik can listen to the Docker events
+      - ./conf/traefik.toml:/traefik.toml
+      - ./conf/traefik-tls.toml:/traefik-tls.toml
+      - ./certs/:/certs/
+
+networks:
+  proxy:
+    external: true
+    name: proxy

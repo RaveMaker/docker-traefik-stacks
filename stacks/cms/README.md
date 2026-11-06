@@ -6,7 +6,7 @@ docker-compose file includes:
  - RWS
  - Postgres
  - Docker Swarm support
- - Traefik v2 support
+ - Traefik v3 support
 
 ## Setup:
 1. clone the repo
@@ -15,33 +15,15 @@ docker-compose file includes:
 4. create `cms.ranking.conf` from `config/cms.ranking.conf.sample`
 5. create `isolate.conf` from `config/isolate.conf.sample`
 6. run `randomize-secret.sh` in `config` dir
-7. copy one of the docker-compose (dev/traefik) templates to `docker-compose.yml`
+7. run `docker compose up -d`
 
-- to create a docker-compose.prod.yml file for docker swarm run:
+## Network settings
+
+This stack joins an external Docker network named `proxy` (shared with Traefik). Create it once before bringing the stack up:
 
 ```
-docker-compose config > docker-compose.prod.yml
-``` 
-
-## Network settings:
-The stack is divided into two networks, backend and frontend.
-
-the idea behind splitting the stack into two networks
-is to block the access of the reverse proxy to the backend containers.
-
-both networks are unique and will be named with stack-name_network-name such as:
-
-- docker-cms_backend
-- docker-cms_frontend
-
-after running docker-compose up you need to connect your reverse proxy to your new frontend network:
- you can do that manually using:
- 
+docker network create proxy
 ```
- docker network connect docker-cms_frontend PROXY_CONTAINER_NAME
- ```
-
-if you are using my Traefik setup there is a `connect.sh` script included that will connect all your frontend networks to your Traefik container.
 
 Author: [RaveMaker][RaveMaker].
 

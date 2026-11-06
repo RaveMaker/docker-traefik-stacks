@@ -1,0 +1,23 @@
+[api]
+dashboard = true
+insecure = true
+
+[entryPoints]
+[entryPoints.http]
+address = ":80"
+
+[entryPoints.http.http.redirections]
+  [entryPoints.http.http.redirections.entryPoint]
+    to = "https"
+    scheme = "https"
+
+[entryPoints.https]
+address = ":443"
+
+[providers.docker]
+exposedByDefault = false
+network = "proxy"
+
+[providers.file]
+filename = "/traefik-tls.toml"
+watch = true

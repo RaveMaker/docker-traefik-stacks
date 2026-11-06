@@ -6,40 +6,21 @@ docker-compose file includes:
  - MariaDB
  - Backup
  - Docker Swarm support
- - Traefik v2 support
+ - Traefik v3 support
 
 ## Setup:
 1. clone the repo
 2. create `.env` file from `.env.example`
 3. create `msmtp/msmtprc` from `msmtp/msmtprc.example`
-4. copy one of the docker-compose (dev/traefik) templates to `docker-compose.yml`
+4. run `docker compose up -d`
 
-- to create a docker-compose.prod.yml file for docker swarm run:
+## Network settings
 
-```
-docker-compose config > docker-compose.prod.yml
-``` 
-
-## Network settings:
-The stack is divided into two networks, backend and frontend.
-
-the idea behind splitting the stack into two networks
-is to block the access of the reverse proxy to the backend containers.
-
-both networks are unique and will be named with stack-name_network-name such as:
-
-- docker-apache-php_backend
-- docker-apache-php_frontend
-
-after running docker-compose up you need to connect your reverse proxy to your new frontend network:
- you can do that manually using:
+This stack joins an external Docker network named `proxy` (shared with Traefik). Create it once before bringing the stack up:
 
 ```
-docker network connect docker-apache-php_frontend PROXY_CONTAINER_NAME
+docker network create proxy
 ```
-
-if you are using my Traefik setup there is a 'connect.sh' script included
-that will connect all your frontend networks to your Traefik container.
 
 Author: [RaveMaker][RaveMaker].
 

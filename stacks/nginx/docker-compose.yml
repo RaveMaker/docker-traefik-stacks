@@ -1,0 +1,22 @@
+services:
+  web:
+    image: nginx:alpine
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${podName}.rule=Host(`${hostRule}`)"
+      - "traefik.http.routers.${podName}.entrypoints=https"
+      - "traefik.http.routers.${podName}.tls=true"
+      - "traefik.http.services.${podName}.loadbalancer.server.port=80"
+    networks:
+      - proxy
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d:ro
+      - ./html:/usr/share/nginx/html:ro
+      #- ./home:/home:ro # uncomment for userdir_mod behaviour
+    command: [nginx, '-g', 'daemon off;']
+
+networks:
+  proxy:
+    external: true
+    name: proxy

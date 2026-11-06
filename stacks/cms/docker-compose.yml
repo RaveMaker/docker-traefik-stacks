@@ -1,0 +1,69 @@
+services:
+  cms:
+    image: cms
+    build:
+      context: build-cms
+    privileged: true
+    command: cms
+    networks:
+      - proxy
+      - backend
+    volumes:
+      - ./config/cms.conf:/config/cms.conf
+      - ./config/isolate.conf:/usr/local/etc/isolate
+      - ./logs:/var/local/log/cms
+      - ./cms:/cms
+    restart: always
+    depends_on:
+      - cms_db
+    environment:
+      CMS_CONFIG: /config/cms.conf
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${podName}.rule=Host(`${hostRule}`)"
+      - "traefik.http.routers.${podName}.entrypoints=https"
+      - "traefik.http.routers.${podName}.tls=true"
+      - "traefik.http.services.${podName}.loadbalancer.server.port=8888"
+      - "traefik.http.routers.${podName}-admin.rule=Host(`${hostRuleAdmin}`)"
+      - "traefik.http.routers.${podName}-admin.entrypoints=https"
+      - "traefik.http.routers.${podName}-admin.tls=true"
+      - "traefik.http.routers.${podName}-admin.service=${podName}-admin"
+      - "traefik.http.services.${podName}-admin.loadbalancer.server.port=8889"
+
+  rws:
+    image: cms:latest
+    command: rws
+    depends_on:
+      - cms
+    networks:
+      - proxy
+    volumes:
+      - ./config/cms.ranking.conf:/usr/local/etc/cms.ranking.conf
+      - ./logs:/var/local/log/cms
+      - ./ranking:/var/local/lib/cms/ranking
+      - ./cms:/cms
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${podName}-rank.rule=Host(`${hostRuleRank}`)"
+      - "traefik.http.routers.${podName}-rank.entrypoints=https"
+      - "traefik.http.routers.${podName}-rank.tls=true"
+      - "traefik.http.services.${podName}-rank.loadbalancer.server.port=8890"
+
+  cms_db:
+    image: postgres
+    restart: always
+    networks:
+      - backend
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${dbName}
+      POSTGRES_USER: ${dbUser}
+      POSTGRES_PASSWORD: ${dbPass}
+
+networks:
+  proxy:
+    external: true
+    name: proxy
+  backend:
